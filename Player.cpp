@@ -39,27 +39,46 @@ namespace
 	const float CONTACT_EPSILON = 0.0001f;//当たり判定誤差吸収用。
 	const float WALL_WALK_SPEED = 1.0f;//壁戻しの歩行速度
 
+	//短形の当たり判定を表す構造体
 	struct CollisionRect
 	{
 		float left, right, bottom, top;
 	};
 
-
-
-	//enum
+	//プレイヤーの座標から当たり判定用の短形を生成する
+	CollisionRect MakePlayerRect(const XMFLOAT3& position)
+	{
+		const float foot = position.y - PLAYER_FOOT_OFFSET;
+		return { position.x - PLAYER_HALF_WIDTH,position.x + PLAYER_HALF_WIDTH,foot,foot + PLAYER_HEIGHT };
+	}
 	
+	//ブロックの行・列・マップの高さから当たり判定用の短形を生成する
+	CollisionRect MakeBlockRect(int row,int col,int mapHeight)
+	{
+		const float x = col * BLOCK_INTERVAL_X;
+		const float y = (mapHeight - 1 - row) * BLOCK_INTERVAL_Y;
+		return { x - BLOCK_HALF_WIDTH,x + BLOCK_HALF_WIDTH,y,y + BLOCK_SURFACE_HEIGHT };
+	}
 
+	//2つの短形がX軸方向に重なっているか判定
+	bool OverlapX(const CollisionRect& a, const CollisionRect& b)
+	{
+		return a.right > b.left + CONTACT_EPSILON && a.left < b.right - CONTACT_EPSILON;
+	}
 
+	//2つの短形がY軸方向に重なっているか判定
+	bool OverlapY(const CollisionRect& a, const CollisionRect& b)
+	{
+		return a.top > b.bottom + CONTACT_EPSILON && a.bottom < b.top - CONTACT_EPSILON;
+	}
 	
-	
-	std::vector<std::vector<int>>gmap;
-
+	//プレイヤーの向きに対応する角度
 	float P_ANGLE[4] = { 180.0f,0.0f,90.0f,270.0f };
+
+	//プレイヤーの向きに対応する移動ベクトル
 	XMVECTOR P_MOVE[4] = { XMVectorSet(0,0,1,0),XMVectorSet(0,0,-1,0),
 		XMVectorSet(-1,0,0,0),XMVectorSet(1,0,0,0) };
 	
-
-	//float TURN_FRAME = 30.0f;//回転にかかるフレーム数
 	float AdujustAngle(float angle)
 	{
 		if (angle >= 180.0f)
@@ -72,52 +91,105 @@ namespace
 		}
 		return angle;
 	}
-	//float diff = 0.0f;//開始角度から、目標角度までの回転量（何度回転するか）
-	//float halfangle = 180.0f;
-	//float fullangle = 360.0f;
 
 }
 
+//コンストラクタの宣言
 Player::Player(GameObject* parent)
-	:GameObject(parent,"Player"), hWalkModel_(-1), hIdleModel_(-1) ,ground_(nullptr){
-	//swordDirには、初期方向として、ローカルモデルの剣の根っこから
-	//先端までのベクトルとして（0,1,0)を代入しておく
-	//初期位置は原点
+	:GameObject(parent,"Player"),
+	hWalkModel_(-1), 
+	hIdleModel_(-1) ,
+	ground_(nullptr),
+	pstate_(PLAYER_IDLE),
+	pdirection_(PLAYER_DOWN),
+	turnStartAngle_(0.0f),
+	turnEndAngle_(0.0f),
+	turnEndDirection_(PLAYER_DOWN),
+	currentSpeed_(0.0f),
+	turnFrame_(0.0f),
+	jumpVelocity_(0.0f),
+	isGrounded_(true)
+{
+	
 }
 
 void Player::Initialize()
 {
 	hWalkModel_ = Model::Load("Walking.fbx");
 	Model::SetAnimFrame(hWalkModel_, 0, 67, 1.0);
-	transform_.position_ = { 0.5f,0.0,0.5f };
+	transform_.position_ = START_POS;
 
 	hIdleModel_ = Model::Load("Idle.fbx");
 	Model::SetAnimFrame(hIdleModel_, 0, 600, 1.0);
-	SphereCollider* collision = new SphereCollider(XMFLOAT3(0, 0.25, 0), 0.5f);
+	SphereCollider* collision = new SphereCollider(XMFLOAT3(0, 0.25f, 0), 0.5f);
 	AddCollider(collision);
 }
 
 void Player::Update()
 {
-	/*transform_.rotate_.y +=1;
-	static float angle = 0.0;
-	angle = angle + 0.3f;
-	XMMATRIX scale = XMMatrixScaling(1.0f, 1.0f, 1.0f);
-	XMMATRIX rotateX = XMMatrixRotationX(XMConvertToRadians(angle));
-	XMMATRIX rotate = XMMatrixRotationY(XMConvertToRadians(angle));
-	XMMATRIX translate = XMMatrixTranslation(1.0f, 0.0f, 0.0f);
+	//方向転換中でなければ、いったん待機状態へ
+	//HandleInput()で移動入力があればWALKへ
+	if (pstate_ != PLAYER_TURN)
+	{
+		pstate_ = PLAYER_IDLE;
+	}
+	
+	bool isBraking = HandleInput();
+	if (UpdateTurn())
+	{
+		UpdateJump();
+		return;
+	}
 
-	SetWorldMatrix(scale *  rotate * translate);*/
 	XMVECTOR pos = XMLoadFloat3(&transform_.position_);
 	XMVECTOR move = XMVectorSet(0, 0, 0, 0);
-	const float SPEED = 0.1f;
-	float angle = 0.0f;
-	static float turnFrame = 0.0f;//回転中のフレーム数を管理する変数
-
-	if (pstate != PLAYER_STATE::PLAYER_TURN)
+	
+	//移動入力中
+	if (pstate_ == PLAYER_WALK)
 	{
-		pstate = PLAYER_STATE::PLAYER_IDLE;
+		//空中で加速を弱くする(if文のやつ…だよな、これ）
+		float accel = isGrounded_
+			? ACCRATATE
+			: ACCRATATE * AIR_CONTROL;
+
+		currentSpeed_ += accel;
+
+		if (currentSpeed_ > MAX_SPEED)
+		{
+			currentSpeed_ = MAX_SPEED;
+		}
+		move = P_MOVE[pdirection_];
+		transform_.rotate_.y = P_ANGLE[pdirection_];
 	}
+	//移動入力がない場合は
+	else
+	{
+		if (currentSpeed_ > 0.0f)
+		{
+			float decel;//減速処理
+			if (isGrounded_)
+			{
+				decel = isBraking ? BRAKE : FRICTION;
+			}
+			else
+			{
+				//空中では減速を弱く
+				decel = FRICTION * AIR_CONTROL;
+			}
+			currentSpeed_ -= decel;
+			if (currentSpeed_ < 0.0f)
+			{
+				currentSpeed_ = 0.0f;
+			}
+			//入力を話しても減速中は今までの方向へ
+			move = P_MOVE[pdirection_];
+		}
+	}
+
+	//水平移動
+
+	
+
 	PLAYER_DIRECTION olddir = pdirection;//今の向きを入れる
 
 	if (pstate != PLAYER_STATE::PLAYER_TURN)//ターン中はキー入力受け付けない
@@ -249,4 +321,22 @@ void Player::Release()
 void Player::OnCollision(GameObject* pTarget)
 {
 	
+}
+
+bool Player::HandleInput()
+{
+	return false;
+}
+
+bool Player::UpdateTurn()
+{
+	return false;
+}
+
+void Player::UpdateJump()
+{
+}
+
+void Player::ResolveWallCollision(XMVECTOR& pos, const XMVECTOR& move)
+{
 }

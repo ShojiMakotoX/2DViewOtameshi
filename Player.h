@@ -40,27 +40,28 @@ private:
 		PLAYER_DIRECTION_MAX//方向の数
 	};
 
-	bool HandleInput();
-	bool UpdateTurn();
-	void UpdateJump();
-	void ResolveWallCollision(XMVECTOR& pos, const XMVECTOR& move);
+	bool HandleInput();//入力処理、ブレーキ中ならtrue
+	bool UpdateTurn();//回転処理、回転中ならtrue
+	void UpdateJump();//ジャンプ・重力処理
+	void ResolveWallCollision(XMVECTOR& pos, const XMVECTOR& move);//壁との当たり判定
 
 	int hWalkModel_;//歩きアニメーションのモデルハンドル
 	int hIdleModel_;//待機アニメーションのモデルハンドル
 	Ground* ground_;
 
 	//状態変数
-	PLAYER_STATE  pstate_;
-	PLAYER_DIRECTION pdirection_;
+	PLAYER_STATE  pstate_;//プレイヤー状態
+	PLAYER_DIRECTION pdirection_;//プレイヤーの向き
 
 	float turnStartAngle_;//開始角度
 	float turnEndAngle_;//終了角度
+	PLAYER_DIRECTION turnEndDirection_;//回転終了時の向き
 
-	float currentSpeed_;
-	float turnFrame_;
+	float currentSpeed_;//現在速度
+	float turnFrame_;//回転中のフレーム数
 
-	float jumpVelocity_;
-	bool isGrounded_;
+	float jumpVelocity_;//ジャンプ中の垂直速度
+	bool isGrounded_;//地面に接地しているか
 
 };
 
