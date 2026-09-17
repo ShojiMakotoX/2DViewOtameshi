@@ -28,9 +28,9 @@ void TestScene::Initialize()
 	//pWp = Instantiate<Weapon>(this);
 	Player*pPlayer = Instantiate <Player>(this);
 	pGround = Instantiate<Ground>(this);
-	//Enemy* eEnemy = Instantiate<Enemy>(this);
+	Enemy* eEnemy = Instantiate<Enemy>(this);
 	pPlayer->SetGround(pGround);
-	//eEnemy->SetGround(pGround);
+	eEnemy->SetGround(pGround);
 	myEsa = pGround->GetEsaCount();
 
 	Camera::SetPosition({ 0,10,-20 });
