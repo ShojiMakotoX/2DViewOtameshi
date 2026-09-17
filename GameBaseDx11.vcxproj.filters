@@ -100,8 +100,6 @@
       <Filter>01Engine\GameObject</Filter>
     </ClCompile>
     <ClCompile Include="Ground.cpp" />
-    <ClCompile Include="Food.cpp" />
-    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="CLEAR.cpp">
       <Filter>リソース ファイル\Scene</Filter>
     </ClCompile>
@@ -187,8 +185,6 @@
       <Filter>01Engine\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="Ground.h" />
-    <ClInclude Include="Food.h" />
-    <ClInclude Include="Enemy.h" />
     <ClInclude Include="CLEAR.h">
       <Filter>リソース ファイル\Scene</Filter>
     </ClInclude>

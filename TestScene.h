@@ -23,8 +23,7 @@ public:
 
 	//ŠJ•ú
 	void Release() override;
-	void AddScore(int score);
-	void DeleteEsa(int esa);
+	
 private:
 	Text* pText_;
 	Player* pPlayer_;

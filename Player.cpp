@@ -7,6 +7,14 @@
 
 namespace
 {
+	const float MAX_SPEED = 0.2f;
+	const float BASE_SPEED = 0.1f;
+	const float ACCRATATE = 0.005f;
+	const float FRICTION = 0.008f;
+	const float BRAKE = 0.02f;
+	const float TURN_FRAME = 10.0f;
+	const float BLOCK_INTERVAL_X = 2.0f;
+
 
 	//enum
 	enum PLAYER_STATE
@@ -26,7 +34,6 @@ namespace
 		PLAYER_DIRECTION_MAX//方向の数
 	};
 
-	float TURN_FRAME = 10.0f;
 
 	PLAYER_DIRECTION pdirection = PLAYER_DOWN;//プレイヤーの向きを管理する変数
 	float turnStartAngle = 0.0f;//開始角度

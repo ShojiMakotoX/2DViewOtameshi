@@ -142,7 +142,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CLEAR.cpp" />
-    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Engine\Audio.cpp" />
     <ClCompile Include="Engine\BillBoard.cpp" />
     <ClCompile Include="Engine\BoxCollider.cpp" />
@@ -166,7 +165,6 @@
     <ClCompile Include="Engine\Sprite.cpp" />
     <ClCompile Include="Engine\Text.cpp" />
     <ClCompile Include="Engine\Texture.cpp" />
-    <ClCompile Include="Food.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="TestScene.cpp" />
@@ -174,7 +172,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CLEAR.h" />
-    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Engine\Audio.h" />
     <ClInclude Include="Engine\BillBoard.h" />
     <ClInclude Include="Engine\BoxCollider.h" />
@@ -199,7 +196,6 @@
     <ClInclude Include="Engine\Sprite.h" />
     <ClInclude Include="Engine\Text.h" />
     <ClInclude Include="Engine\Texture.h" />
-    <ClInclude Include="Food.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="TestScene.h" />
