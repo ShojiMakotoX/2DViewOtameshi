@@ -7,14 +7,37 @@
 
 namespace
 {
-	const float MAX_SPEED = 0.2f;
-	const float BASE_SPEED = 0.1f;
-	const float ACCRATATE = 0.005f;
-	const float FRICTION = 0.008f;
-	const float BRAKE = 0.02f;
-	const float TURN_FRAME = 10.0f;
-	const float BLOCK_INTERVAL_X = 2.0f;
+	//プレイヤー移動に関する定数
+	const float MAX_SPEED = 0.2f;//最大移動速度
+	const float BASE_SPEED = 0.1f;//アニメーション速度1.0になる基準速度
+	const float ACCRATATE = 0.005f;//移動入力中の加速度
+	const float FRICTION = 0.008f;//入力を話した時の減速度
+	const float BRAKE = 0.02f;//進行方向と逆方向を入力したときの減速度
+	const float TURN_FRAME = 10.0f;//方向転換に書けるフレーム数
+	const float BLOCK_INTERVAL_X = 2.0f;//マップ1マス分のワールドサイズ
 
+	const XMFLOAT3 START_POS = { 15.0f,0.75f,0.5f };//プレイヤー初期座標
+
+	//ジャンプ
+	const float JUMP_POWER = 0.2f;
+	const float GRAVITY = 0.01f;
+	const float AIR_CONTROL = 0.5f;
+
+	//ブロックの配置間隔
+	const float BLOCK_INTERVAL_Y = 1.0f;
+	const float BLOCK_HALF_WIDTH = 0.99375f;
+	const float BLOCK_SURFACE_HEIGHT = 0.75f;
+
+	//プレイヤーの判定（原点を足元に）
+	const float PLAYER_FOOT_OFFSET = 0.0f;
+	//身長はマップの縦2マスで、判定はワールド座標定義
+	const float PLAYER_HEIGHT = BLOCK_INTERVAL_Y * 2.0f;
+	const float PLAYER_MODEL_HEIGHT = 3.76537f;
+	const float PLAYER_MODEL_SCALE = PLAYER_HEIGHT / PLAYER_MODEL_HEIGHT;
+	//横幅は従来の判定幅を描画モデルと同じ割合で
+	const float PLAYER_HALF_WIDTH = 0.4f * PLAYER_MODEL_SCALE;
+	const float CONTACT_EPSILON = 0.0001f;
+	const float WALL_WALK_SPEED = 1.0f;
 
 	//enum
 	enum PLAYER_STATE
