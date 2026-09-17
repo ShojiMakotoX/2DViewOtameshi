@@ -26,7 +26,7 @@ void Title::Update()
 
 void Title::Draw()
 {
-	pText_->Draw(550, 300, "Maze Hunt\n");
+	pText_->Draw(550, 300, "2D game\n");
 	pText_->Draw(500, 400, "Press Space Start!\n");
 	
 }
