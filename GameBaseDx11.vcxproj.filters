@@ -100,9 +100,6 @@
       <Filter>01Engine\GameObject</Filter>
     </ClCompile>
     <ClCompile Include="Ground.cpp" />
-    <ClCompile Include="CLEAR.cpp">
-      <Filter>リソース ファイル\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="TestScene.cpp">
       <Filter>リソース ファイル\Scene</Filter>
     </ClCompile>
@@ -185,9 +182,6 @@
       <Filter>01Engine\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="Ground.h" />
-    <ClInclude Include="CLEAR.h">
-      <Filter>リソース ファイル\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="TestScene.h">
       <Filter>リソース ファイル\Scene</Filter>
     </ClInclude>

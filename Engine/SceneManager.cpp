@@ -42,7 +42,7 @@ void SceneManager::Update()
 		{
 		case SCENE_ID_TITLE:Instantiate<Title>(this);break;
 		case SCENE_ID_TEST: Instantiate<TestScene>(this); break;
-		case SCENE_ID_CLEAR: Instantiate<CLEAR>(this);break;
+		//case SCENE_ID_CLEAR: Instantiate<CLEAR>(this);break;
 
 		}
 		Audio::Initialize();
