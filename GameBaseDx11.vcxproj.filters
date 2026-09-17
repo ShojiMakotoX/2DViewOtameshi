@@ -97,9 +97,11 @@
     <ClCompile Include="Engine\Transform.cpp">
       <Filter>01Engine\GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="CLEAR.cpp" />
     <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="Food.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Title.cpp" />
+    <ClCompile Include="CLEAR.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -176,9 +178,11 @@
     <ClInclude Include="Engine\Transform.h">
       <Filter>01Engine\GameObject</Filter>
     </ClInclude>
-    <ClInclude Include="CLEAR.h" />
     <ClInclude Include="Ground.h" />
+    <ClInclude Include="Food.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Title.h" />
+    <ClInclude Include="CLEAR.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shader\Simple2D.hlsl">
