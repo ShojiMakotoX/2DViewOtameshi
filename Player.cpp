@@ -19,49 +19,39 @@ namespace
 	const XMFLOAT3 START_POS = { 15.0f,0.75f,0.5f };//プレイヤー初期座標
 
 	//ジャンプ
-	const float JUMP_POWER = 0.2f;
-	const float GRAVITY = 0.01f;
-	const float AIR_CONTROL = 0.5f;
+	const float JUMP_POWER = 0.2f;//ジャンプ開始時の上向き速度
+	const float GRAVITY = 0.01f;//1フレームごとに減少する垂直速度
+	const float AIR_CONTROL = 0.5f;//空中での加速・減速の強さ（地上比）
 
 	//ブロックの配置間隔
-	const float BLOCK_INTERVAL_Y = 1.0f;
-	const float BLOCK_HALF_WIDTH = 0.99375f;
-	const float BLOCK_SURFACE_HEIGHT = 0.75f;
+	const float BLOCK_INTERVAL_Y = 1.0f;//ブロック1マス分の縦方向の間隔
+	const float BLOCK_HALF_WIDTH = 0.99375f;//ブロックの当たり判定の半分の幅
+	const float BLOCK_SURFACE_HEIGHT = 0.75f;//ブロック上面の高さ
 
 	//プレイヤーの判定（原点を足元に）
-	const float PLAYER_FOOT_OFFSET = 0.0f;
+	const float PLAYER_FOOT_OFFSET = 0.0f;//プレイヤー足元の補正値
 	//身長はマップの縦2マスで、判定はワールド座標定義
-	const float PLAYER_HEIGHT = BLOCK_INTERVAL_Y * 2.0f;
-	const float PLAYER_MODEL_HEIGHT = 3.76537f;
+	const float PLAYER_HEIGHT = BLOCK_INTERVAL_Y * 2.0f;//プレイヤーの当たり判定高さ
+	const float PLAYER_MODEL_HEIGHT = 3.76537f;//プレイヤーモデルの元の高さ（スケールを計算するときに必要）
 	const float PLAYER_MODEL_SCALE = PLAYER_HEIGHT / PLAYER_MODEL_HEIGHT;
 	//横幅は従来の判定幅を描画モデルと同じ割合で
-	const float PLAYER_HALF_WIDTH = 0.4f * PLAYER_MODEL_SCALE;
-	const float CONTACT_EPSILON = 0.0001f;
-	const float WALL_WALK_SPEED = 1.0f;
+	const float PLAYER_HALF_WIDTH = 0.4f * PLAYER_MODEL_SCALE;//プレイヤーの当たり判定の半分幅
+	const float CONTACT_EPSILON = 0.0001f;//当たり判定誤差吸収用。
+	const float WALL_WALK_SPEED = 1.0f;//壁戻しの歩行速度
+
+	struct CollisionRect
+	{
+		float left, right, bottom, top;
+	};
+
+
 
 	//enum
-	enum PLAYER_STATE
-	{
-		PLAYER_IDLE,
-		PLAYER_WALK,
-		PLAYER_TURN,
-		PLAYER_STATE_MAX//状態の数
-	};
-	PLAYER_STATE pstate = PLAYER_STATE::PLAYER_IDLE;
-	enum PLAYER_DIRECTION
-	{
-		PLAYER_UP,
-		PLAYER_DOWN,
-		PLAYER_LEFT,
-		PLAYER_RIGHT,
-		PLAYER_DIRECTION_MAX//方向の数
-	};
+	
 
 
-	PLAYER_DIRECTION pdirection = PLAYER_DOWN;//プレイヤーの向きを管理する変数
-	float turnStartAngle = 0.0f;//開始角度
-	float turnEndAngle = 0.0f;//終了角度
-	PLAYER_DIRECTION turnEndDirection = PLAYER_DOWN;
+	
+	
 	std::vector<std::vector<int>>gmap;
 
 	float P_ANGLE[4] = { 180.0f,0.0f,90.0f,270.0f };
