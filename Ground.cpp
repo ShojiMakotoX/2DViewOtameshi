@@ -36,7 +36,7 @@ Ground::Ground(GameObject* parent)
 
 void Ground::Initialize()
 {
-	hModel_ = Model::Load("masu2.fbx");//1025だとうまく読み込めない可能性あり
+	hModel_ = Model::Load("Stage.fbx");//1025だとうまく読み込めない可能性あり
 	//transform_.rotate_ = XMFLOAT3(-90.0f, 0.0f, 0.0f);
 	hModelt_ = Model::Load("Block.fbx");
 	
