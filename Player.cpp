@@ -487,9 +487,9 @@ void Player::ResolveWallCollision(XMVECTOR& pos, const XMVECTOR& move)
 void Player::Draw()
 {
 	Transform drawTransform = transform_;
-	drawTransform.scale_.x *= PLAYER_MODEL_SCALE;
-	drawTransform.scale_.y *= PLAYER_MODEL_SCALE;
-	drawTransform.scale_.z *= PLAYER_MODEL_SCALE;
+	drawTransform.scale_.x *= PLAYER_MODEL_SCALE * 1.5f;
+	drawTransform.scale_.y *= PLAYER_MODEL_SCALE * 1.5f;
+	drawTransform.scale_.z *= PLAYER_MODEL_SCALE * 1.5f;
 
 	if (pstate_ == PLAYER_IDLE)
 	{
