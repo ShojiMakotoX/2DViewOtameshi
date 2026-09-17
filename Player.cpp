@@ -133,7 +133,7 @@ void Player::Update()
 	{
 		pstate_ = PLAYER_IDLE;
 	}
-	
+
 	bool isBraking = HandleInput();
 	if (UpdateTurn())
 	{
@@ -143,7 +143,7 @@ void Player::Update()
 
 	XMVECTOR pos = XMLoadFloat3(&transform_.position_);
 	XMVECTOR move = XMVectorSet(0, 0, 0, 0);
-	
+
 	//移動入力中
 	if (pstate_ == PLAYER_WALK)
 	{
@@ -187,10 +187,60 @@ void Player::Update()
 	}
 
 	//水平移動
+	pos = pos + currentSpeed_ * move;
+	XMStoreFloat3(&transform_.position_, pos);
+
+	//衝突で速度がゼロになったかを解決前後で確認
+	const float speedBeforeCollision = currentSpeed_;
+	ResolveWallCollision(pos, move);
+	const bool blockedByWall = speedBeforeCollision > 0.0f && currentSpeed_ == 0.0f;
+
+	//実際の移動速度と壁に向かって歩くアニメの速度を分離
+	//入力を離した場合や逆方向へのブレーキ中は再度固定しない
+	const bool pushingWall = blockedByWall && pstate_ == PLAYER_WALK;
+	const float walkAnimSpeed = pushingWall
+		? WALL_WALK_SPEED
+		: currentSpeed_ / BASE_SPEED;
+
+	Model::SetAnimSpeed(hWalkModel_, walkAnimSpeed);
+
+	//ジャンプ・重力・ブロックへの着地
+	UpdateJump();
+}
+bool Player::HandleInput()
+{
+	bool isBraking = false;
+
+	PLAYER_DIRECTION olddir = pdirection_;//今の向きを入れる
+
+	if (pstate_ != PLAYER_TURN)
+	{
+		//停止中
+		if (currentSpeed_ == 0.0f && isGrounded_)
+		{
+			if (Input::IsKey(DIK_LEFT))
+			{
+
+				pdirection_ = PLAYER_DIRECTION::PLAYER_LEFT;
+				pstate = PLAYER_STATE::PLAYER_WALK;
+
+			}
+			if (Input::IsKey(DIK_RIGHT))
+			{
+
+				pdirection_ = PLAYER_DIRECTION::PLAYER_RIGHT;
+				pstate = PLAYER_STATE::PLAYER_WALK;
+			}
+		}
+		//移動中、または空中の場合
+	}
+
+	return false;
+}
 
 	
 
-	PLAYER_DIRECTION olddir = pdirection;//今の向きを入れる
+	
 
 	if (pstate != PLAYER_STATE::PLAYER_TURN)//ターン中はキー入力受け付けない
 	{

@@ -141,6 +141,11 @@ namespace Model
 		_datas[handle]->SetAnimFrame(startFrame, endFrame, animSpeed);
 	}
 
+	void SetAnimSpeed(int handle, float animSpeed)
+	{
+		_datas[handle]->SetAnimSpeed(animSpeed);
+	}
+
 
 	//現在のアニメーションのフレームを取得
 	int GetAnimFrame(int handle)
