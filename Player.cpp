@@ -390,6 +390,15 @@ void Player::UpdateJump()
 				hit = true;
 
 			}
+			else if (dy > 0.0f && before.top <= block.bottom + CONTACT_EPSILON && after.top >= block.bottom)
+			{
+				const float y = block.bottom - PLAYER_FOOT_OFFSET;
+				if (!hit || y <reslovedY)
+				{
+					reslovedY = y;
+				}
+				hit = true;
+			}
 
 
 		}
@@ -455,7 +464,7 @@ void Player::ResolveWallCollision(XMVECTOR& pos, const XMVECTOR& move)
 				}
 				hit = true;
 			}
-			else if (dx < 0.0f && before.left >= block.right + CONTACT_EPSILON && after.left <= block.right)
+			else if (dx < 0.0f && before.left >= block.right - CONTACT_EPSILON && after.left <= block.right)
 			{
 				const float x = block.right + PLAYER_HALF_WIDTH;
 				if (!hit || x > resolveX)
@@ -485,13 +494,13 @@ void Player::Draw()
 	if (pstate_ == PLAYER_IDLE)
 	{
 		
-		Model::SetTransform(hIdleModel_, transform_);
+		Model::SetTransform(hIdleModel_, drawTransform);
 		Model::Draw(hIdleModel_);
 	}
 	else if (pstate_ == PLAYER_WALK|| pstate_ == PLAYER_TURN)
 	{
 		
-		Model::SetTransform(hWalkModel_, transform_);
+		Model::SetTransform(hWalkModel_, drawTransform);
 		Model::Draw(hWalkModel_);
 	}
 	

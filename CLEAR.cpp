@@ -24,7 +24,7 @@ void CLEAR::Update()
 
 void CLEAR::Draw()
 {
-	pText_->Draw(550, 300, "EXCELLENT!\n");
+	pText_->Draw(550, 300, "CLEAR!\n");
 	pText_->Draw(500, 400, "Press Space R to Title.\n");
 }
 

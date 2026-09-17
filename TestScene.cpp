@@ -3,8 +3,6 @@
 #include "Ground.h"
 #include "Engine\\Camera.h"
 #include "Engine\\Text.h"
-#include "Enemy.h"
-#include "Food.h"
 #include "Engine\\SceneManager.h"
 
 namespace
@@ -27,12 +25,11 @@ TestScene::TestScene(GameObject * parent)
 void TestScene::Initialize()
 {	
 	//pWp = Instantiate<Weapon>(this);
-	Player*pPlayer = Instantiate <Player>(this);
+	pPlayer_ = Instantiate <Player>(this);
 	pGround = Instantiate<Ground>(this);
 	//Enemy* eEnemy = Instantiate<Enemy>(this);
-	pPlayer->SetGround(pGround);
-	//eEnemy->SetGround(pGround);
-	//myEsa = pGround->GetEsaCount();
+	pPlayer_->SetGround(pGround);
+	
 
 	Camera::SetPosition({ pPlayer_->GetPosition().x,pPlayer_->GetPosition().y+CAMERA_HEIGHT,-22});
 	Camera::SetTarget({ pPlayer_->GetPosition().x,pPlayer_->GetPosition().y+CAMERA_HEIGHT,0 });
