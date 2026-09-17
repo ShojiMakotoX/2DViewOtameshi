@@ -4,6 +4,7 @@
 #include "TestScene.h"
 #include "Engine\\Input.h"
 #include "Ground.h"
+#include <cmath>
 
 namespace
 {
@@ -222,139 +223,272 @@ bool Player::HandleInput()
 			{
 
 				pdirection_ = PLAYER_DIRECTION::PLAYER_LEFT;
-				pstate = PLAYER_STATE::PLAYER_WALK;
+				pstate_ = PLAYER_STATE::PLAYER_WALK;
 
 			}
 			if (Input::IsKey(DIK_RIGHT))
 			{
 
 				pdirection_ = PLAYER_DIRECTION::PLAYER_RIGHT;
-				pstate = PLAYER_STATE::PLAYER_WALK;
+				pstate_ = PLAYER_STATE::PLAYER_WALK;
 			}
 		}
 		//移動中、または空中の場合
+		else
+		{
+			if (Input::IsKey(DIK_LEFT))
+			{
+				if (pdirection_ == PLAYER_LEFT)
+				{
+					pstate_ = PLAYER_STATE::PLAYER_WALK;
+				}
+				else if (pdirection_ == PLAYER_RIGHT)
+				{
+					//稚樹で逆方向入力したときだけブレーキを
+					isBraking = isGrounded_;
+				}
+			}
+			if (Input::IsKey(DIK_RIGHT))
+			{
+				if (pdirection_ == PLAYER_RIGHT)
+				{
+					pstate_ = PLAYER_STATE::PLAYER_WALK;
+				}
+				else if (pdirection_ == PLAYER_LEFT)
+				{
+					//稚樹で逆方向入力したときだけブレーキを
+					isBraking = isGrounded_;
+				}
+			}
+		}
 	}
-
-	return false;
-}
-
-	
-
-	
-
-	if (pstate != PLAYER_STATE::PLAYER_TURN)//ターン中はキー入力受け付けない
+	//ジャンプ開始
+	if (Input::IsKeyDown(DIK_SPACE) && isGrounded_)
 	{
-		if (Input::IsKey(DIK_LEFT))
-		{
-
-			pdirection = PLAYER_DIRECTION::PLAYER_LEFT;
-			pstate = PLAYER_STATE::PLAYER_WALK;
-
-		}
-		if (Input::IsKey(DIK_RIGHT))
-		{
-
-			pdirection = PLAYER_DIRECTION::PLAYER_RIGHT;
-			pstate = PLAYER_STATE::PLAYER_WALK;
-		}
-		if (Input::IsKey(DIK_UP))
-		{
-
-			pdirection = PLAYER_DIRECTION::PLAYER_UP;
-			pstate = PLAYER_STATE::PLAYER_WALK;
-		}
-		if (Input::IsKey(DIK_DOWN))
-		{
-
-			pdirection = PLAYER_DIRECTION::PLAYER_DOWN;
-			pstate = PLAYER_STATE::PLAYER_WALK;
-		}
+		jumpVelocity_ = JUMP_POWER;
+		isGrounded_ = false;
 	}
-		if (olddir != pdirection)
-		{
-			//回転
-			pstate = PLAYER_STATE::PLAYER_TURN;
-			turnFrame = 0.0f;
-			turnStartAngle = P_ANGLE[olddir];
-			float diff = AdujustAngle(P_ANGLE[pdirection] - P_ANGLE[olddir]);
-			turnEndDirection = pdirection;
-			turnEndAngle =turnStartAngle+diff;
-		}
-		 
-		if (pstate == PLAYER_STATE::PLAYER_TURN)
-		{
-			//回転処理
-			//angleを30フレーム使って新しいangleに切り替え
-			//古いものからちょっとずつ足してって…
-
-			turnFrame += 1.5f;
-			float t = turnFrame / TURN_FRAME;//0から1.0
-
-			if (t > 1.0f)
-			{
-				t = 1.0f;//1.0を超えないようにする（保険）
-			}
-			//最短方向に回転するように角度差を補正。
-			
-			/*if (diff > halfangle)
-			{
-				diff -= fullangle;
-			}
-			if (diff < -halfangle)
-			{
-				diff += fullangle;
-			}*/
-			
-			angle = turnStartAngle + (turnEndAngle-turnStartAngle)*t;//開始角度から回転量を保管率だけ進めた現在の角度を求める
-			transform_.rotate_.y = angle;
-
-			//30フレーム経過したら回転終了
-			if (turnFrame >= TURN_FRAME)
-			{
-				pdirection = turnEndDirection;
-				transform_.rotate_.y = angle;
-				pstate = PLAYER_STATE::PLAYER_WALK;
-
-				return;//早期リターン
-			}
-		}
-		else if (pstate != PLAYER_STATE::PLAYER_IDLE)
-		{
-			move = P_MOVE[pdirection];
-			angle = P_ANGLE[pdirection];
-			transform_.rotate_.y = angle;
-		}
-		pos = pos + SPEED * move;
-		XMStoreFloat3(&transform_.position_, pos);
-		XMFLOAT3 wpos = transform_.position_;
-
-		//壁オブジェクトに食い込んでいたら戻す
-		gmap = ground_->GetMapData();//マップを取得
-		int mapX = (int)((wpos.x + 10.0f) / 2);
-		int mapZ = (int)((10.0f - wpos.z) / 2);
-	
-		if (gmap[mapZ][mapX]==1)
-		{
-			pos = pos - SPEED * move;
-			XMStoreFloat3(&transform_.position_, pos);
-		}
+	//方向転換
+	if (olddir != pdirection_)
+	{
+		//回転
+		pstate_ = PLAYER_TURN;
+		turnFrame_ = 0.0f;
+		turnStartAngle_ = P_ANGLE[olddir];
+		//最短方向へ回転するための角度差補正
+		float diff = AdujustAngle(P_ANGLE[pdirection_] - P_ANGLE[olddir]);
+		turnEndDirection_ = pdirection_;
+		turnEndAngle_ = turnStartAngle_ + diff;
+	}
+	return isBraking;
 
 }
-	
+//方向転換処理
+//TURN_FRAME フレーム掛けて回転
+bool Player::UpdateTurn()
+{
+	if (pstate_ != PLAYER_TURN)
+	{
+		return false;
+	}
+		//回転処理
+		//angleを30フレーム使って新しいangleに切り替え
+		//古いものからちょっとずつ足してって…
+
+		turnFrame_ += 1.0f;
+
+		float t = min(turnFrame_ / TURN_FRAME, 1.0f);//0から1.0
+
+		transform_.rotate_.y = turnStartAngle_ + (turnEndAngle_ - turnStartAngle_) * t;
+
+
+		//30フレーム経過したら回転終了
+		if (turnFrame_ >= TURN_FRAME)
+		{
+			pdirection_ = turnEndDirection_;
+			transform_.rotate_.y = P_ANGLE[pdirection_];
+			pstate_ = PLAYER_WALK;
+		}
+		return true;
+}
+//ジャンプ・重力・ブロックへの着地処理
+void Player::UpdateJump()
+{
+	if (ground_ == nullptr)
+	{
+		return;
+	}
+
+	const auto& gmap = ground_->GetMapData();
+	const int mapHeight = static_cast<int>(gmap.size());
+	const CollisionRect before = MakePlayerRect(transform_.position_);
+
+
+	if (isGrounded_)
+	{
+		//既存仕様の常設床　穴を作る場合はこの床もマップで管理
+		bool supported = transform_.position_.y <= START_POS.y + CONTACT_EPSILON;
+		float supportY = START_POS.y;
+		for (int row = 0;row < mapHeight;++row)
+		{
+
+			for (int col = 0;col < static_cast<int>(gmap[row].size());++col)
+			{
+				if (gmap[row][col] != 1)
+				{
+					continue;
+				}
+				const CollisionRect block = MakeBlockRect(row, col, mapHeight);
+				if (OverlapX(before, block) && std::fabs(before.bottom - block.top) <= CONTACT_EPSILON)
+				{
+					supported = true;
+					supportY = block.top + PLAYER_FOOT_OFFSET;
+				}
+
+			}
+		}
+		if (supported)
+		{
+			transform_.position_.y = supportY;
+			jumpVelocity_ = 0.0f;
+			return;
+		}
+		isGrounded_ = false;
+		jumpVelocity_ = 0.0f;
+
+	}
+	const float dy = jumpVelocity_;
+	transform_.position_.y += dy;
+	jumpVelocity_ -= GRAVITY;
+	const CollisionRect after = MakePlayerRect(transform_.position_);
+
+	float reslovedY = transform_.position_.y;
+	bool hit = false;
+
+	//移動前後で面をまたいだ画を調べ、最初に接触する面で止める
+	for (int row = 0;row < mapHeight;++row)
+	{
+		for (int col = 0;col < static_cast<int>(gmap[row].size());++col)
+		{
+			if (gmap[row][col] != 1)
+			{
+				continue;
+			}
+			const CollisionRect block = MakeBlockRect(row, col, mapHeight);
+			if (!OverlapX(after, block))
+			{
+				continue;
+			}
+
+			if (dy <= 0.0f && before.bottom >= block.top - CONTACT_EPSILON && after.bottom <= block.top)
+			{
+				const float y = block.top + PLAYER_FOOT_OFFSET;
+				if (!hit || y > reslovedY)
+				{
+					reslovedY = y;
+				}
+				hit = true;
+
+			}
+
+
+		}
+	}
+	//常設床も着地候補に
+	if (dy <= 0.0f && reslovedY <= START_POS.y)
+	{
+		reslovedY = START_POS.y;
+		hit = true;
+	}
+	transform_.position_.y = reslovedY;
+	if (hit)
+	{
+		jumpVelocity_ = 0.0f;
+		//頭突きでは接地させない。次の更新から重力で落下
+		isGrounded_ = dy <= 0.0f;
+	}
+
+}
+
+//壁との衝突処理
+void Player::ResolveWallCollision(XMVECTOR& pos, const XMVECTOR& move)
+{
+	if (ground_ == nullptr)
+	{
+		return;
+	}
+	//Updateで適用した水平移動から、移動前の短形を復元
+	XMFLOAT3 oldPosition;
+	XMStoreFloat3(&oldPosition, pos - currentSpeed_ * move);
+	const float dx = transform_.position_.x - oldPosition.x;
+	if (dx == 0.0f)
+	{
+		return;
+	}
+
+	const CollisionRect before = MakePlayerRect(oldPosition);
+	const CollisionRect after = MakePlayerRect(transform_.position_);
+	const auto& gmap = ground_->GetMapData();
+	const int mapHeight = static_cast<int>(gmap.size());
+	float resolveX = transform_.position_.x;
+	bool hit = false;
+
+	for (int row = 0;row < mapHeight;++row)
+	{
+		for (int col = 0;col < static_cast<int>(gmap[row].size());++col)
+		{
+			if (gmap[row][col] != 1)
+			{
+				continue;
+			}
+			const CollisionRect block = MakeBlockRect(row, col, mapHeight);
+			if (!OverlapY(before, block))
+			{
+				continue;
+			}
+			if (dx > 0.0f && before.right <= block.left + CONTACT_EPSILON && after.right >= block.left)
+			{
+				const float x = block.left - PLAYER_HALF_WIDTH;
+				if (!hit || x < resolveX)
+				{
+					resolveX = x;
+				}
+				hit = true;
+			}
+			else if (dx < 0.0f && before.left >= block.right + CONTACT_EPSILON && after.left <= block.right)
+			{
+				const float x = block.right + PLAYER_HALF_WIDTH;
+				if (!hit || x > resolveX)
+				{
+					resolveX = x;
+				}
+				hit = true;
+			}
+		}
+	}
+	if (hit)
+	{
+		transform_.position_.x = resolveX;
+		pos = XMLoadFloat3(&transform_.position_);
+		currentSpeed_ = 0.0f;
+	}
+}
 
 
 void Player::Draw()
 {
-	//transform_.scale_ = { 0.01,0.01,0.01 };
-	//transform_.position_ = { 0,-0.5, 0 };
+	Transform drawTransform = transform_;
+	drawTransform.scale_.x *= PLAYER_MODEL_SCALE;
+	drawTransform.scale_.y *= PLAYER_MODEL_SCALE;
+	drawTransform.scale_.z *= PLAYER_MODEL_SCALE;
 
-	if (pstate == PLAYER_STATE::PLAYER_IDLE)
+	if (pstate_ == PLAYER_IDLE)
 	{
 		
 		Model::SetTransform(hIdleModel_, transform_);
 		Model::Draw(hIdleModel_);
 	}
-	else if (pstate == PLAYER_STATE::PLAYER_WALK|| pstate == PLAYER_STATE::PLAYER_TURN)
+	else if (pstate_ == PLAYER_WALK|| pstate_ == PLAYER_TURN)
 	{
 		
 		Model::SetTransform(hWalkModel_, transform_);
@@ -373,20 +507,6 @@ void Player::OnCollision(GameObject* pTarget)
 	
 }
 
-bool Player::HandleInput()
-{
-	return false;
-}
 
-bool Player::UpdateTurn()
-{
-	return false;
-}
 
-void Player::UpdateJump()
-{
-}
 
-void Player::ResolveWallCollision(XMVECTOR& pos, const XMVECTOR& move)
-{
-}
