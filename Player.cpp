@@ -9,7 +9,7 @@
 namespace
 {
 	//プレイヤー移動に関する定数
-	const float MAX_SPEED = 0.2f;//最大移動速度
+	const float MAX_SPEED = 0.1f;//最大移動速度
 	const float BASE_SPEED = 0.1f;//アニメーション速度1.0になる基準速度
 	const float ACCRATATE = 0.005f;//移動入力中の加速度
 	const float FRICTION = 0.008f;//入力を話した時の減速度
@@ -20,7 +20,7 @@ namespace
 	const XMFLOAT3 START_POS = { 15.0f,0.75f,0.5f };//プレイヤー初期座標
 
 	//ジャンプ
-	const float JUMP_POWER = 0.2f;//ジャンプ開始時の上向き速度
+	const float JUMP_POWER = 0.25f;//ジャンプ開始時の上向き速度
 	const float GRAVITY = 0.01f;//1フレームごとに減少する垂直速度
 	const float AIR_CONTROL = 0.5f;//空中での加速・減速の強さ（地上比）
 

@@ -11,6 +11,8 @@ namespace
 	const float GROUND_ROTATE_X = -90.0f;
 	const float BLOCK_INTERVAL_X = 2.0f;
 	const float BLOCK_INTERVAL_Y = 1.0f;
+
+	const float BLOCK_MOVE = 0.005f;
 }
 Ground::Ground(GameObject* parent)
 	:GameObject(parent,"Ground"), hModel_(-1),mapWidth_(-1),mapHeight_(-1)
@@ -42,11 +44,23 @@ void Ground::Initialize()
 	
 	/*hModelesa_ = Model::Load("item.fbx");
 	hModelbigesa_ = Model::Load("bigitem.fbx");*/
-	
+	for (int j = 0;j < mapHeight_;j++)
+	{
+		for (int i = 0;i < mapWidth_;i++)
+		{
+			if (mapData_[j][i] == 2)
+			{
+				moveTr.position_ = { i * BLOCK_INTERVAL_X,(mapHeight_ - 1 - j) * BLOCK_INTERVAL_Y,0.0f };//ブロック設置
+			}
+		}
+	}
 }
 
 void Ground::Update()
 {
+	moveTr.position_.x += BLOCK_MOVE;
+
+	
 }
 
 void Ground::Draw()
@@ -73,7 +87,11 @@ void Ground::Draw()
 				Model::SetTransform(hModelt_, tr);
 				Model::Draw(hModelt_);
 			}
-
+			else if (mapData_[j][i] == 2)
+			{
+				Model::SetTransform(hModelt_, moveTr);
+				Model::Draw(hModelt_);
+			}
 			
 
 		}
