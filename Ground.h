@@ -21,11 +21,16 @@ public:
 
 	//開放
 	void Release() override;
+
+	const std::vector<Transform>& GetMoveBlocks()
+	{
+		return moveTr;
+	}
 	
 private:
 	int hModel_;
 	int hModelt_;
-	Transform moveTr;
+	std::vector<Transform> moveTr;
 	std::vector<std::vector<int>> mapData_;
 	int mapWidth_;
 	int mapHeight_;

@@ -54,7 +54,7 @@ namespace
 	}
 	
 	//ブロックの行・列・マップの高さから当たり判定用の短形を生成する
-	CollisionRect MakeBlockRect(int row,int col,int mapHeight)
+	CollisionRect MakeBlockRect(int row,int col,int mapHeight,int blockType)
 	{
 		const float x = col * BLOCK_INTERVAL_X;
 		const float y = (mapHeight - 1 - row) * BLOCK_INTERVAL_Y;
@@ -334,11 +334,11 @@ void Player::UpdateJump()
 
 			for (int col = 0;col < static_cast<int>(gmap[row].size());++col)
 			{
-				if (gmap[row][col] != 1)
+				if (gmap[row][col] != 1&& gmap[row][col] != 2)
 				{
 					continue;
 				}
-				const CollisionRect block = MakeBlockRect(row, col, mapHeight);
+				const CollisionRect block = MakeBlockRect(row, col, mapHeight,gmap[row][col]);
 				if (OverlapX(before, block) && std::fabs(before.bottom - block.top) <= CONTACT_EPSILON)
 				{
 					supported = true;
@@ -370,11 +370,11 @@ void Player::UpdateJump()
 	{
 		for (int col = 0;col < static_cast<int>(gmap[row].size());++col)
 		{
-			if (gmap[row][col] != 1)
+			if (gmap[row][col] != 1&&gmap[row][col]!= 2)
 			{
 				continue;
 			}
-			const CollisionRect block = MakeBlockRect(row, col, mapHeight);
+			const CollisionRect block = MakeBlockRect(row, col, mapHeight,gmap[row][col]);
 			if (!OverlapX(after, block))
 			{
 				continue;
@@ -450,7 +450,7 @@ void Player::ResolveWallCollision(XMVECTOR& pos, const XMVECTOR& move)
 			{
 				continue;
 			}
-			const CollisionRect block = MakeBlockRect(row, col, mapHeight);
+			const CollisionRect block = MakeBlockRect(row, col, mapHeight,gmap[row][col]);
 			if (!OverlapY(before, block))
 			{
 				continue;
